@@ -30,7 +30,7 @@ from postprocess import PostProcess
 
 def main():
     # build dataset
-    batch_size = 3
+    batch_size = 1
     height = 48
     width = 48
     dataset = TestDataGenerator(PuppetDataset, 4, batch_size, height=height, width=width)

@@ -76,7 +76,8 @@ class PuppetDataset(object):
         kp = [plan[1][:4] for plan in plans]
         kpv = np.ones([n, 4], dtype=np.uint8)  # visible
         # generate bg
-        bg_color = np.array([random.randint(0, 255)
+        #bg_color = np.array([random.randint(0, 255)
+        bg_color = np.array([random.randint(0, 5)
                              for _ in range(3)]).reshape([1, 1, 3])
         image = np.ones([self.height, self.width, 3], dtype=np.uint8)
         image = image * bg_color.astype(np.uint8)
@@ -161,7 +162,8 @@ class PuppetDataset(object):
         ja3 = random.choice(range_ja3)
         # decide part color
         # 0:hand, 1:arm, 2:body 3:leg
-        colors = [tuple([random.randint(0, 255) for _ in range(3)])
+        # colors = [tuple([random.randint(0, 255) for _ in range(3)])
+        colors = [tuple([random.randint(250, 255) for _ in range(3)])
                   for _ in range(4)]
 
         def nextcoord(here, lenth, angle):

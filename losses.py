@@ -22,9 +22,10 @@ with the god animal protecting
      
 """
 from keras import backend as K
+from keras.layers import Activation
 
 
-def level_loss(a=1, b=1, c=1, kpn=4):
+def level_loss(a=1, b=0, c=0, kpn=4):
     """define one level's loss
     :param a: weight for obj_mask
     :param b: weight for see_mask
@@ -41,17 +42,17 @@ def level_loss(a=1, b=1, c=1, kpn=4):
         return total loss
         """
         ture_obj_mask = K.expand_dims(y_true[:, :, :, 0], axis = 3)
-        pred_obj_mask = K.expand_dims(y_pred[:, :, :, 0], axis = 3)
+        pred_obj_mask = Activation("softmax")(K.expand_dims(y_pred[:, :, :, 0], axis = 3))
         a_loss = binary_cross_entropy(ture_obj_mask, pred_obj_mask)
         true_others = y_true[:, :, :, 1:] * ture_obj_mask
-        pred_others = y_pred[:, :, :, 1:] * ture_obj_mask
-        b_loss = binary_cross_entropy(true_others[:, :, :, 2::3], pred_others[:, :, :, 2::3]) / K.mean(ture_obj_mask)
+        pred_others = (y_pred[:, :, :, 1:] * ture_obj_mask)
+        b_loss = binary_cross_entropy(true_others[:, :, :, 2::3], Activation("softmax")((pred_others[:, :, :, 2::3]))) / K.maximum(K.mean(ture_obj_mask), 0.1)
         c_loss = 0
         for i in range(kpn):
             see_mask = K.expand_dims(true_others[:, :, :, 2+i], axis = 3)
             true_xy = true_others[:, :, :, 0+i:2+i] * see_mask
             pred_xy = pred_others[:, :, :, 0+i:2+i] * see_mask
-            c_loss += mean_absolute_relative_error(true_xy, pred_xy) / K.mean(see_mask)
+            c_loss += mean_absolute_relative_error(true_xy, pred_xy) / K.maximum(K.mean(see_mask), 0.025)
         total_loss = (a*a_loss + b*b_loss + c*c_loss)/(a+b+c)
         return total_loss
     return _level_loss

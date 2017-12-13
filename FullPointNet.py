@@ -66,12 +66,12 @@ def FullPointNet(input_tensor=None, input_shape=None):
         else:
             img_input = input_tensor
     # normalize
-    # img_input = preprocess_input(img_input)
+    img_input = preprocess_input(img_input)
     # difine block parameters, first column not used
-    depth_mul     = [0, 16,  3,  3,  3,  3,  3,  3,  2,  2,  1,   1,   1]
+    depth_mul = [0, 16, 3, 3, 3, 3, 3, 3, 2, 2, 1, 1, 1]
     point_filters = [3, 24, 24, 32, 32, 48, 48, 64, 64, 96, 96, 128, 128]
-    depth_mul     += [   1,  1,  1,  1,  1,  2,  2,  2,  2,  2,   2,   2]
-    point_filters += [  96, 96, 64, 64, 48, 48, 32, 32, 24, 24,  16,  13]
+    depth_mul += [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2]
+    point_filters += [96, 96, 64, 64, 48, 48, 32, 32, 24, 24, 16, 13]
     # first block
     x = Block(img_input, depth_mul[1], point_filters[1], blockindex=1,
               style1=True, style2='A')
@@ -115,7 +115,8 @@ def preprocess_input(x):
     return imagenet_utils.preprocess_input(x, mode='tf')
 
 
-def Block(x, depth_mul, point_filters, blockindex=None, style1=False, style2='A'):
+def Block(x, depth_mul, point_filters, blockindex=None, style1=False,
+          style2='A'):
     """
     :param x: input tensor
     :param depth_mul:
@@ -154,7 +155,7 @@ def Block(x, depth_mul, point_filters, blockindex=None, style1=False, style2='A'
     x = BatchNormalization(name=prefix + '_pointconv_bn')(x)
     # residual pointwise convolution
     residual = Conv2D(point_filters, (1, 1), strides=(1, 1), padding='same',
-               use_bias=False, name=prefix + '_residualconv')(residual)
+                      use_bias=False, name=prefix + '_residualconv')(residual)
     residual = BatchNormalization(name=prefix + '_residualconv_bn')(residual)
     # residual add
     x = layers.add([x, residual])
